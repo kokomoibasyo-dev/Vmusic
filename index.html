@@ -85,16 +85,14 @@ textarea{
 <body>
 <div class="wrap">
 
-<!-- HEADER -->
 <div class="card">
   <h1>SUNO｜Vtuber配信用BGMプロンプト生成</h1>
   <div class="note">
-    配信タイプと空気感を選ぶだけで、<br>
-    <strong>「声を邪魔しない・事故らない」</strong>インストBGM用プロンプトを生成します。
+    配信タイプ・空気感・<strong>声やキャラの雰囲気（任意）</strong>を選ぶだけで、  
+    声を邪魔しないインストBGM用プロンプトを生成します。
   </div>
 </div>
 
-<!-- INPUT -->
 <div class="card">
   <h2>🎯 配信タイプ（ひとつ選択）</h2>
   <div class="btnrow" data-group="type" data-single="true">
@@ -115,74 +113,86 @@ textarea{
     <button class="btn" data-value="morning">朝向け</button>
   </div>
 
+  <h2>🎤 声・キャラの雰囲気（任意）</h2>
+  <div class="btnrow" data-group="character">
+    <button class="btn" data-value="cute">かわいい／妹っぽい</button>
+    <button class="btn" data-value="calm_senior">落ち着いた／お姉さん・お兄さん</button>
+    <button class="btn" data-value="prince">元気／少年・王子様</button>
+    <button class="btn" data-value="bro">頼れる／兄貴</button>
+    <button class="btn" data-value="neutral">中性的／ミステリアス</button>
+    <button class="btn" data-value="ossan">渋い／おっさん</button>
+    <button class="btn" data-value="dandy">ダンディ／低音ボイス</button>
+  </div>
+
   <div class="actions">
     <button class="primary" onclick="generate()">生成する</button>
   </div>
 </div>
 
-<!-- OUTPUT -->
 <div class="card">
-  <h2>🎼 Style（Suno用） <button class="copy" onclick="copy('styleOut')">コピー</button></h2>
+  <h2>🎼 Style <button class="copy" onclick="copy('styleOut')">コピー</button></h2>
   <textarea id="styleOut"></textarea>
 
-  <h2>📝 Prompt（Suno用） <button class="copy" onclick="copy('promptOut')">コピー</button></h2>
+  <h2>📝 Prompt <button class="copy" onclick="copy('promptOut')">コピー</button></h2>
   <textarea id="promptOut"></textarea>
 
-  <h2>🛒 曲の説明（販売・配布用） <button class="copy" onclick="copy('descOut')">コピー</button></h2>
+  <h2>🛒 曲の説明 <button class="copy" onclick="copy('descOut')">コピー</button></h2>
   <textarea id="descOut"></textarea>
 </div>
 
 </div>
 
 <script>
-const state = { type:null, mood:[] };
+const state = { type:null, mood:[], character:[] };
 
 document.querySelectorAll(".btnrow").forEach(row=>{
   row.addEventListener("click",e=>{
     const btn=e.target.closest(".btn");
     if(!btn)return;
-    const group=row.dataset.group;
+    const g=row.dataset.group;
     const single=row.dataset.single;
 
     if(single){
       row.querySelectorAll(".btn").forEach(b=>b.classList.remove("active"));
       btn.classList.add("active");
-      state[group]=btn.dataset.value;
+      state[g]=btn.dataset.value;
     }else{
       btn.classList.toggle("active");
-      state[group]=[...row.querySelectorAll(".active")].map(b=>b.dataset.value);
+      state[g]=[...row.querySelectorAll(".active")].map(b=>b.dataset.value);
     }
   });
 });
 
+const characterSound = {
+  cute:"light synths, higher tones, soft rhythm",
+  calm_senior:"warm midrange, stable pads",
+  prince:"bright chords, clean plucks",
+  bro:"solid low end, clear rhythm",
+  neutral:"ambient textures, minimal melody",
+  ossan:"lofi texture, warm mids",
+  dandy:"jazzy harmony, deep bass"
+};
+
 function generate(){
-  const typeMap={
-    chat:{bpm:"90-110",desc:"会話を邪魔しない穏やかなテンポ"},
-    game:{bpm:"120-150",desc:"集中力を高めるリズム感"},
-    chill:{bpm:"70-90",desc:"リラックスできるゆったり感"},
-    work:{bpm:"85-105",desc:"作業に没入しやすい安定感"},
-    event:{bpm:"110-140",desc:"特別感のある高揚感"}
-  };
+  const charDesc = state.character.map(c=>characterSound[c]).join("; ");
 
-  const t=typeMap[state.type]||typeMap.chat;
+  styleOut.value =
+`instrumental VTuber livestream BGM, voice-friendly, loopable`;
 
-  styleOut.value=
-`instrumental livestream BGM, voice-friendly, loopable, ${state.type||"chat"} style`;
-
-  promptOut.value=
+  promptOut.value =
 `Create instrumental background music for VTuber livestreams.
 No vocals, no lyrics, no voice samples.
-BPM ${t.bpm}.
-Designed to be loop-friendly and low fatigue.
-Optimized so it never masks speaking voice.
-Mood: ${state.mood.join(", ")||"balanced"}.
-Avoid aggressive leads, harsh high frequencies, vocal-range instruments.`;
+Optimized to never mask speaking voice.
+Style: ${state.type || "chat"}.
+Mood: ${state.mood.join(", ") || "balanced"}.
+Character tone: ${charDesc || "neutral, versatile"}.
+Avoid aggressive leads, harsh highs, vocal-range instruments.`;
 
-  descOut.value=
+  descOut.value =
 `Vtuber配信用に設計されたインストゥルメンタルBGMです。
-「${state.type||"雑談"}」配信に最適で、${t.desc}を意識しています。
-声を邪魔しないよう中域を抑え、長時間配信でも疲れにくい構成です。
-雑談・作業・ゲームなど、配信の空気を壊さず自然に馴染みます。`;
+配信タイプ「${state.type || "雑談"}」に合わせ、
+声やキャラクターの雰囲気（${state.character.join("／") || "指定なし"}）を邪魔しない音作りを意識しています。
+長時間の配信でも疲れにくく、自然にループするため安心して使用できます。`;
 }
 
 function copy(id){
