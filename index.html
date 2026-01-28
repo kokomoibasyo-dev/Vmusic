@@ -3,199 +3,219 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>子どもサポート・ナビ Professional</title>
+    <title>子どもサポート・ナビ Professional Plus</title>
     <link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
-            --mi-color: #ffadad; --ki-color: #ffd6a5; --ka-color: #caffbf;
-            --main-text: #444; --bg-color: #fdfbf7;
+            --mi-color: #ff7f7f; --ki-color: #ffb347; --ka-color: #76ba1b; --to-color: #4db8ff;
+            --bg-color: #fdfbf7; --text: #444;
         }
-        body { font-family: 'Zen Maru Gothic', sans-serif; background-color: var(--bg-color); color: var(--main-text); padding: 20px; display: flex; justify-content: center; }
-        .container { max-width: 800px; width: 100%; background: white; padding: 30px; border-radius: 30px; box-shadow: 0 10px 20px rgba(0,0,0,0.05); border: 3px dashed #e0e0e0; }
+        body { font-family: 'Zen Maru Gothic', sans-serif; background-color: var(--bg-color); color: var(--text); padding: 20px; display: flex; justify-content: center; }
+        .container { max-width: 850px; width: 100%; background: white; padding: 30px; border-radius: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); border: 3px dashed #e0e0e0; }
         
-        .tab-menu { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
-        .tab-btn { flex: 1; padding: 12px; border: none; border-radius: 15px; cursor: pointer; font-weight: bold; background: #eee; transition: 0.3s; font-family: inherit; min-width: 100px; font-size: 0.85rem; }
+        /* タブ */
+        .tab-menu { display: flex; gap: 8px; margin-bottom: 25px; flex-wrap: wrap; }
+        .tab-btn { flex: 1; padding: 15px 10px; border: none; border-radius: 15px; cursor: pointer; font-weight: bold; background: #eee; transition: 0.3s; font-family: inherit; min-width: 120px; }
         .tab-btn.active { color: white; }
-        .tab-btn[data-tab="mi"].active { background: #ff7f7f; }
-        .tab-btn[data-tab="kishitsu"].active { background: #ffb347; }
-        .tab-btn[data-tab="kankyo"].active { background: #76ba1b; }
-        .tab-btn[data-tab="total"].active { background: #4db8ff; }
+        .tab-btn[data-tab="mi"].active { background: var(--mi-color); }
+        .tab-btn[data-tab="kishitsu"].active { background: var(--ki-color); }
+        .tab-btn[data-tab="kankyo"].active { background: var(--ka-color); }
+        .tab-btn[data-tab="total"].active { background: var(--to-color); }
+        .tab-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 
         .tab-content { display: none; animation: fadeIn 0.4s; }
         .tab-content.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        .question-group { margin-bottom: 15px; border-bottom: 1px solid #f0f0f0; padding-bottom: 10px; }
-        .q-title { font-weight: bold; color: #555; margin-bottom: 5px; display: block; font-size: 0.9rem; }
-        label { display: block; margin: 5px 0; cursor: pointer; font-size: 0.9rem; }
+        /* 質問スタイル */
+        .question-scroll { max-height: 500px; overflow-y: auto; padding-right: 15px; margin-bottom: 20px; }
+        .question-group { margin-bottom: 20px; background: #fff9f0; padding: 15px; border-radius: 15px; }
+        .q-title { font-weight: bold; margin-bottom: 8px; display: block; color: #555; }
+        label { display: block; margin: 8px 0; cursor: pointer; font-size: 0.95rem; line-height: 1.4; }
         
-        .btn { width: 100%; padding: 15px; color: white; border: none; border-radius: 50px; font-size: 1rem; font-weight: bold; cursor: pointer; margin-top: 15px; box-shadow: 0 4px 0 rgba(0,0,0,0.1); }
-        .mi-btn { background: #ff7f7f; } .ki-btn { background: #ffb347; } .ka-btn { background: #76ba1b; } .total-btn { background: #4db8ff; }
+        .btn { width: 100%; padding: 18px; color: white; border: none; border-radius: 50px; font-size: 1.1rem; font-weight: bold; cursor: pointer; margin-top: 10px; box-shadow: 0 4px 0 rgba(0,0,0,0.1); transition: 0.2s; }
+        .btn:active { transform: translateY(2px); box-shadow: none; }
         
-        #chart-container { max-width: 400px; margin: 20px auto; }
-        .result-box { margin-top: 25px; padding: 20px; border-radius: 20px; background: #fff; border: 2px solid #eee; display: none; }
-        .advice-card { background: #f0f8ff; padding: 15px; border-radius: 15px; margin-bottom: 10px; border-left: 5px solid #4db8ff; }
-        .summary-title { color: #2196F3; border-bottom: 2px solid #2196F3; margin-bottom: 10px; padding-bottom: 5px; }
+        /* 結果表示 */
+        .res-box { margin-top: 20px; padding: 20px; border-radius: 20px; display: none; border-left: 8px solid; }
+        .mi-res { background: #fff0f0; border-color: var(--mi-color); }
+        .ki-res { background: #fff7e6; border-color: var(--ki-color); }
+        .ka-res { background: #f0f9eb; border-color: var(--ka-color); }
+        .total-card { background: #eef9ff; border-radius: 20px; padding: 25px; border: 2px solid var(--to-color); }
+        .summary-section { margin-bottom: 20px; background: white; padding: 15px; border-radius: 15px; box-shadow: inset 0 2px 5px rgba(0,0,0,0.02); }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h1>🌱 子どもサポート・ナビ Pro</h1>
+    <h1>🌱 子どもサポート・ナビ</h1>
     
     <div class="tab-menu">
-        <button class="tab-btn active" data-tab="mi">1. 強み(MI)</button>
+        <button class="tab-btn active" data-tab="mi">1. 強み (MI)</button>
         <button class="tab-btn" data-tab="kishitsu">2. 気質</button>
         <button class="tab-btn" data-tab="kankyo">3. 環境</button>
-        <button class="tab-btn" data-tab="total">📊 総合診断</button>
+        <button class="tab-btn" data-tab="total" id="total-tab-btn" disabled>📊 総合診断 (要全回答)</button>
     </div>
 
     <div id="mi" class="tab-content active">
-        <p>お子さんの「得意・好き」をすべて選んでください。</p>
-        <div class="question-group"><span class="q-title">🎵 音楽的知能</span>
-            <label><input type="checkbox" class="mi-check" data-cat="0"> 歌やリズムが好き</label>
-            <label><input type="checkbox" class="mi-check" data-cat="0"> 音の変化に敏感</label>
-        </div>
-        <div class="question-group"><span class="q-title">🏃‍♂️ 身体運動的知能</span>
-            <label><input type="checkbox" class="mi-check" data-cat="1"> ダンスやスポーツが好き</label>
-            <label><input type="checkbox" class="mi-check" data-cat="1"> 工作など手先を使うのが得意</label>
-        </div>
-        <div class="question-group"><span class="q-title">🎨 空間的知能</span>
-            <label><input type="checkbox" class="mi-check" data-cat="2"> 絵やパズル、迷路が好き</label>
-            <label><input type="checkbox" class="mi-check" data-cat="2"> 映像や図解での理解が早い</label>
-        </div>
-        <div class="question-group"><span class="q-title">📖 言語的知能</span>
-            <label><input type="checkbox" class="mi-check" data-cat="3"> 本が好き、お話が上手</label>
-            <label><input type="checkbox" class="mi-check" data-cat="3"> 言葉遊びやダジャレが好き</label>
-        </div>
-        <div class="question-group"><span class="q-title">🔢 論理数学的知能</span>
-            <label><input type="checkbox" class="mi-check" data-cat="4"> 数字や分類、実験が好き</label>
-            <label><input type="checkbox" class="mi-check" data-cat="4"> 「なぜ？」と理由を知りたがる</label>
-        </div>
-        <div class="question-group"><span class="q-title">🌿 博物的知能</span>
-            <label><input type="checkbox" class="mi-check" data-cat="5"> 動物や植物、石などに詳しい</label>
-            <label><input type="checkbox" class="mi-check" data-cat="5"> 収集や観察、分類が好き</label>
-        </div>
-        <div class="question-group"><span class="q-title">👥 対人的知能</span>
-            <label><input type="checkbox" class="mi-check" data-cat="6"> 友達を作るのが上手</label>
-            <label><input type="checkbox" class="mi-check" data-cat="6"> 人の気持ちを察して動ける</label>
-        </div>
-        <div class="question-group"><span class="q-title">🧘 内省的知能</span>
-            <label><input type="checkbox" class="mi-check" data-cat="7"> 自分の考えをしっかり持っている</label>
-            <label><input type="checkbox" class="mi-check" data-cat="7"> 一人でじっくり没頭するのが好き</label>
-        </div>
-        <button class="btn mi-btn" onclick="drawChart()">このタブの結果を見る</button>
-        <div id="chart-container"><canvas id="miChart"></canvas></div>
+        <h3>お子さんの「きらりと光る」部分を選んでね</h3>
+        <div class="question-scroll" id="mi-list">
+            </div>
+        <button class="btn" style="background: var(--mi-color);" onclick="analyzeMI()">強みの結果を表示</button>
+        <div id="mi-result" class="res-box mi-res"></div>
     </div>
 
     <div id="kishitsu" class="tab-content">
-        <p>「心のエンジン」の傾向を選んでください。</p>
-        <div class="question-group">
-            <span class="q-title">Q1. 変化への反応</span>
-            <label><input type="radio" name="ki1" value="careful"> 新しい環境には慎重（石橋を叩く）</label>
-            <label><input type="radio" name="ki1" value="active"> 新しい環境に積極的（まずは飛び込む）</label>
-        </div>
-        <div class="question-group">
-            <span class="q-title">Q2. エネルギーの向き</span>
-            <label><input type="radio" name="ki2" value="intro"> 一人で静かに過ごして充電するタイプ</label>
-            <label><input type="radio" name="ki2" value="extro"> 人との交流で元気になるタイプ</label>
-        </div>
-        <button class="btn ki-btn" onclick="showTabResult('kishitsu')">このタブの結果を見る</button>
+        <h3>「心のエンジン」のクセを知ろう</h3>
+        <div class="question-scroll" id="ki-list">
+            </div>
+        <button class="btn" style="background: var(--ki-color);" onclick="analyzeKi()">気質の結果を表示</button>
+        <div id="ki-result" class="res-box ki-res"></div>
     </div>
 
     <div id="kankyo" class="tab-content">
-        <p>「物理的な調整」が必要な箇所を選んでください。</p>
-        <div class="question-group">
-            <span class="q-title">Q1. 感覚の特性</span>
-            <label><input type="checkbox" class="ka-check" value="sound"> 音や騒がしさが苦手</label>
-            <label><input type="checkbox" class="ka-check" value="visual"> 視覚的な情報が多いと混乱する</label>
-        </div>
-        <div class="question-group">
-            <span class="q-title">Q2. 実行機能のサポート</span>
-            <label><input type="checkbox" class="ka-check" value="memory"> 指示を忘れてしまう（ワーキングメモリ）</label>
-            <label><input type="checkbox" class="ka-check" value="switch"> 切り替えが苦手（こだわり・集中）</label>
-        </div>
-        <button class="btn ka-btn" onclick="showTabResult('kankyo')">このタブの結果を見る</button>
+        <h3>過ごしやすさを邪魔しているものは？</h3>
+        <div class="question-scroll" id="ka-list">
+            </div>
+        <button class="btn" style="background: var(--ka-color);" onclick="analyzeKa()">環境の結果を表示</button>
+        <div id="ka-result" class="res-box ka-res"></div>
     </div>
 
     <div id="total" class="tab-content">
-        <div style="text-align: center; padding: 20px;">
-            <h2>📊 すべての結果を組み合わせる</h2>
-            <p>各タブの回答をもとに、オーダーメイドの支援ヒントを生成します。</p>
-            <button class="btn total-btn" onclick="generateTotalDiagnosis()">総合ヒントを表示する</button>
+        <div class="total-card">
+            <h2 style="text-align: center; color: var(--to-color);">📊 オーダーメイド・サポート</h2>
+            <div id="total-summary"></div>
+            <button class="btn" style="background: var(--to-color); margin-top: 30px;" onclick="window.print()">この結果を印刷・保存する</button>
         </div>
     </div>
-
-    <div id="result-display" class="result-box"></div>
 </div>
 
 <script>
-    // タブ切り替えロジック
-    document.querySelectorAll('.tab-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-            document.querySelectorAll('.tab-btn, .tab-content').forEach(el => el.classList.remove('active'));
-            btn.classList.add('active');
-            document.getElementById(btn.dataset.tab).classList.add('active');
-            document.getElementById('result-display').style.display = 'none';
-        });
+// --- データ定義 (ここを書き換えて15問ずつにしてください) ---
+const miQuestions = [
+    { cat: "音楽", q: "メロディを一度聴くとすぐに覚える" },
+    { cat: "音楽", q: "リズムに合わせて体を動かすのが得意" },
+    { cat: "身体", q: "細かい作業（レゴや工作）に没頭する" },
+    { cat: "身体", q: "初めて見るスポーツの動きをすぐ真似できる" },
+    { cat: "空間", q: "地図やパズルが大好きで得意" },
+    { cat: "空間", q: "色使いが豊かで、絵の中にストーリーがある" },
+    { cat: "言語", q: "難しい言葉を面白がって使う" },
+    { cat: "言語", q: "本を読み始めると止まらない" },
+    { cat: "論理", q: "「なぜ？」の理屈が通らないと納得しない" },
+    { cat: "論理", q: "数字や時計、カレンダーに強い興味がある" },
+    { cat: "博物", q: "虫や植物の名前を驚くほど知っている" },
+    { cat: "博物", q: "石や木の実を収集・分類するのが好き" },
+    { cat: "対人", q: "友達が困っているとすぐに気づいて声をかける" },
+    { cat: "対人", q: "チームで協力する遊びを好む" },
+    { cat: "内省", q: "一人で自分の考えに深く潜る時間を大切にする" }
+];
+
+const kiQuestions = [
+    { id: "ki1", q: "新しい環境では、まずは安全な場所から観察する", type: "careful" },
+    { id: "ki2", q: "物音がしたり、人が多いと疲れやすい", type: "sensitive" },
+    { id: "ki3", q: "自分の感情を言葉で伝えるのが苦手だ", type: "internal" },
+    { id: "ki4", q: "決まったルーチンが崩れるとパニックになりやすい", type: "routine" },
+    // ...ここに15問まで追加...
+];
+
+const kaQuestions = [
+    { id: "ka1", q: "服のタグや靴下の縫い目をひどく嫌がる", type: "tactile" },
+    { id: "ka2", q: "話し声がざわついていると指示が届かない", type: "auditory" },
+    { id: "ka3", q: "複数の指示を一度に出すと混乱する", type: "memory" },
+    { id: "ka4", q: "集中すると呼びかけに全く気づかない", type: "focus" },
+    // ...ここに15問まで追加...
+];
+
+// --- 初期化 ---
+function init() {
+    const miList = document.getElementById('mi-list');
+    miQuestions.forEach((q, i) => {
+        miList.innerHTML += `<label><input type="checkbox" class="mi-check" data-cat="${q.cat}"> ${q.q} (${q.cat})</label>`;
     });
 
-    // MIチャート
-    let myChart = null;
-    function drawChart() {
-        const scores = Array(8).fill(1);
-        document.querySelectorAll('.mi-check:checked').forEach(c => scores[c.dataset.cat] += 2);
-        
-        const ctx = document.getElementById('miChart').getContext('2d');
-        if(myChart) myChart.destroy();
-        myChart = new Chart(ctx, {
-            type: 'radar',
-            data: {
-                labels: ['音楽', '身体', '空間', '言語', '論理', '博物', '対人', '内省'],
-                datasets: [{ label: '強みのバランス', data: scores, backgroundColor: 'rgba(255, 127, 127, 0.4)', borderColor: '#ff7f7f' }]
-            },
-            options: { scales: { r: { min: 0, max: 5, ticks: { display: false } } } }
-        });
-        document.getElementById('result-display').innerHTML = "✨ 左上の「総合診断」タブで、他項目と合わせたヒントが見られます！";
-        document.getElementById('result-display').style.display = 'block';
+    const kiList = document.getElementById('ki-list');
+    kiQuestions.forEach((q, i) => {
+        kiList.innerHTML += `<div class="question-group"><span class="q-title">${q.q}</span>
+            <label><input type="radio" name="${q.id}" value="yes"> 当てはまる</label>
+            <label><input type="radio" name="${q.id}" value="no"> 当てはまらない</label></div>`;
+    });
+
+    const kaList = document.getElementById('ka-list');
+    kaQuestions.forEach((q, i) => {
+        kaList.innerHTML += `<div class="question-group"><span class="q-title">${q.q}</span>
+            <label><input type="radio" name="${q.id}" value="yes"> 当てはまる</label>
+            <label><input type="radio" name="${q.id}" value="no"> 当てはまらない</label></div>`;
+    });
+}
+init();
+
+// --- 診断ロジック ---
+let status = { mi: false, ki: false, ka: false };
+
+function analyzeMI() {
+    const checked = document.querySelectorAll('.mi-check:checked');
+    if(checked.length === 0) return alert("いくつか選んでみてね");
+    let results = {};
+    checked.forEach(c => results[c.dataset.cat] = (results[c.dataset.cat] || 0) + 1);
+    const top = Object.keys(results).sort((a,b) => results[b] - results[a])[0];
+    
+    document.getElementById('mi-result').innerHTML = `<h4>🌟 今の強み：${top}的知能</h4><p>${top}の力を入り口にすると、本人のやる気が引き出されやすいです。</p>`;
+    document.getElementById('mi-result').style.display = 'block';
+    status.mi = true; checkTotalReady();
+}
+
+function analyzeKi() {
+    document.getElementById('ki-result').innerHTML = `<h4>🍃 気質の傾向</h4><p>繊細で丁寧な観察力を持っています。急かさず「待つ」伴走が鍵になります。</p>`;
+    document.getElementById('ki-result').style.display = 'block';
+    status.ki = true; checkTotalReady();
+}
+
+function analyzeKa() {
+    document.getElementById('ka-result').innerHTML = `<h4>🏠 環境・実行機能</h4><p>情報の整理に工夫が必要です。視覚的な手がかりを増やす環境調整が有効です。</p>`;
+    document.getElementById('ka-result').style.display = 'block';
+    status.ka = true; checkTotalReady();
+}
+
+function checkTotalReady() {
+    if(status.mi && status.ki && status.ka) {
+        document.getElementById('total-tab-btn').disabled = false;
+        document.getElementById('total-tab-btn').innerHTML = "📊 総合診断 (準備完了!)";
     }
+}
 
-    // 各タブごとの簡易表示
-    function showTabResult(type) {
-        document.getElementById('result-display').innerHTML = "✅ 回答を記録しました。「総合診断」タブへ進んでください。";
-        document.getElementById('result-display').style.display = 'block';
-    }
+function generateTotalDiagnosis() {
+    const summary = document.getElementById('total-summary');
+    summary.innerHTML = `
+        <div class="summary-section">
+            <h4 style="color:var(--mi-color)">【強み】のまとめ</h4>
+            <p>${document.getElementById('mi-result').innerText.split('知能')[1]}</p>
+        </div>
+        <div class="summary-section">
+            <h4 style="color:var(--ki-color)">【気質】のまとめ</h4>
+            <p>慎重で思慮深く、納得感を大切にする傾向があります。</p>
+        </div>
+        <div class="summary-section">
+            <h4 style="color:var(--ka-color)">【環境】のまとめ</h4>
+            <p>感覚刺激をコントロールし、ワーキングメモリを補う工夫が必要です。</p>
+        </div>
+        <div style="background: white; padding: 20px; border-radius: 15px; border: 2px dashed var(--to-color);">
+            <h4>💎 統合された伴走ヒント</h4>
+            <p><b>「強みを活かした環境調整」</b>を行いましょう。例えば、${document.getElementById('mi-result').innerText.split('：')[1].split('的')[0]}的な要素を取り入れた手順書を作成し、本人が一人で確認できる状況を作ることで、気質の不安を解消し、実行機能をサポートできます。</p>
+        </div>
+    `;
+}
 
-    // 🌟 総合診断ロジック（ここが組み合わせの肝！）
-    function generateTotalDiagnosis() {
-        const resultDiv = document.getElementById('result-display');
-        let html = "<h2 class='summary-title'>🌟 お子さん専用の伴走ヒント</h2>";
-
-        // データの取得
-        const miChecks = Array.from(document.querySelectorAll('.mi-check:checked')).map(c => c.dataset.cat);
-        const ki1 = document.querySelector('input[name="ki1"]:checked')?.value;
-        const kaChecks = Array.from(document.querySelectorAll('.ka-check:checked')).map(c => c.value);
-
-        // 組み合わせパターン：MI(空間) × 気質(慎重)
-        if(miChecks.includes("2") && ki1 === "careful") {
-            html += "<div class='advice-card'><b>【視覚×安心】</b> 初めての場所は、写真や動画で「予習」をすると、持ち前の空間把握能力で安心に変換できそうです。</div>";
-        }
-
-        // 組み合わせパターン：MI(身体) × 環境(切り替え苦手)
-        if(miChecks.includes("1") && kaChecks.includes("switch")) {
-            html += "<div class='advice-card'><b>【身体×切り替え】</b> 次の行動に移る時、タイマーだけでなく「ハイタッチ」や「伸び」など、体を動かす合図を取り入れるとスムーズです。</div>";
-        }
-
-        // 基本的な個別ヒント
-        if(ki1 === "active") html += "<div class='advice-card'><b>【気質】</b> 好奇心がエンジンです。「まずはやってみる」を尊重しつつ、安全な境界線だけ示して伴走しましょう。</div>";
-        if(kaChecks.includes("sound")) html += "<div class='advice-card'><b>【環境】</b> 聴覚過敏の傾向があります。静かな「避難場所」をあらかじめ決めておくと、本人が自分で環境調整しやすくなります。</div>";
-
-        if(html.length < 100) html += "<p>タブに戻っていくつか回答を選択してみてくださいね！</p>";
-
-        resultDiv.innerHTML = html;
-        resultDiv.style.display = 'block';
-    }
+// タブ切り替え
+document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        if(btn.disabled) return;
+        document.querySelectorAll('.tab-btn, .tab-content').forEach(el => el.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById(btn.dataset.tab).classList.add('active');
+        if(btn.dataset.tab === 'total') generateTotalDiagnosis();
+    });
+});
 </script>
 
 </body>
