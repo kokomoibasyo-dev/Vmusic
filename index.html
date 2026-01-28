@@ -5,177 +5,131 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>子どもサポート・ナビ</title>
     <link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
-            --main-color: #76ba1b; /* 優しい緑 */
-            --bg-color: #fdfbf7;   /* 暖かい白 */
-            --accent-color: #ff9a9e; /* アクセントのピンク */
+            --mi-color: #ffadad; --kishitsu-color: #ffd6a5; --kankyo-color: #caffbf;
+            --main-text: #444; --bg-color: #fdfbf7;
         }
+        body { font-family: 'Zen Maru Gothic', sans-serif; background-color: var(--bg-color); color: var(--main-text); padding: 20px; display: flex; justify-content: center; }
+        .container { max-width: 700px; width: 100%; background: white; padding: 30px; border-radius: 30px; box-shadow: 0 10px 20px rgba(0,0,0,0.05); border: 3px dashed #e0e0e0; }
+        
+        /* タブのスタイル */
+        .tab-menu { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+        .tab-btn { flex: 1; padding: 12px; border: none; border-radius: 15px; cursor: pointer; font-weight: bold; background: #eee; transition: 0.3s; font-family: inherit; min-width: 120px; }
+        .tab-btn.active { color: white; }
+        .tab-btn[data-tab="mi"].active { background: #ff7f7f; }
+        .tab-btn[data-tab="kishitsu"].active { background: #ffb347; }
+        .tab-btn[data-tab="kankyo"].active { background: #76ba1b; }
 
-        body {
-            font-family: 'Zen Maru Gothic', sans-serif;
-            background-color: var(--bg-color);
-            color: #444;
-            margin: 0;
-            padding: 20px;
-            display: flex;
-            justify-content: center;
-        }
+        .tab-content { display: none; animation: fadeIn 0.4s; }
+        .tab-content.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        .container {
-            max-width: 600px;
-            width: 100%;
-            background: white;
-            padding: 30px;
-            border-radius: 30px;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.05);
-            border: 3px dashed #e0e0e0; /* 手書き風の枠線 */
-        }
-
-        h1 {
-            text-align: center;
-            color: var(--main-color);
-            font-size: 1.5rem;
-            margin-bottom: 30px;
-        }
-
-        .question-block {
-            margin-bottom: 25px;
-            padding: 15px;
-            background: #fff9f0;
-            border-radius: 15px;
-        }
-
-        .question-text {
-            font-weight: bold;
-            margin-bottom: 10px;
-            display: block;
-        }
-
-        label {
-            display: block;
-            margin: 10px 0;
-            cursor: pointer;
-            padding: 8px;
-            border-radius: 8px;
-            transition: 0.3s;
-        }
-
-        label:hover {
-            background-color: #f0f0f0;
-        }
-
-        .btn {
-            display: block;
-            width: 100%;
-            padding: 15px;
-            background-color: var(--main-color);
-            color: white;
-            border: none;
-            border-radius: 50px;
-            font-size: 1.1rem;
-            font-weight: bold;
-            cursor: pointer;
-            box-shadow: 0 4px 0 #5a8d14;
-            margin-top: 20px;
-        }
-
-        .btn:active {
-            transform: translateY(3px);
-            box-shadow: none;
-        }
-
-        #result-area {
-            margin-top: 30px;
-            padding: 20px;
-            border-radius: 20px;
-            background-color: #eef9ff;
-            border: 2px solid #bcdff1;
-            display: none;
-            animation: fadeIn 0.5s;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
+        .question-block { margin-bottom: 20px; padding: 15px; background: #fff9f0; border-radius: 15px; }
+        label { display: block; margin: 8px 0; cursor: pointer; }
+        .btn { width: 100%; padding: 15px; color: white; border: none; border-radius: 50px; font-size: 1rem; font-weight: bold; cursor: pointer; margin-top: 10px; }
+        .mi-btn { background: #ff7f7f; } .ki-btn { background: #ffb347; } .ka-btn { background: #76ba1b; }
+        
+        #chart-container { max-width: 400px; margin: 20px auto; }
+        .result-box { margin-top: 20px; padding: 20px; border-radius: 20px; background: #f0f8ff; display: none; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h1>🌱 お子さんの「心地よい」を見つけるヒント</h1>
-
-    <div id="quiz-container">
-        
-        <div class="question-block">
-            <span class="question-text">Q1. 興味があるものへの向かい方は？</span>
-            <label><input type="radio" name="q1" value="A"> 慎重にじっくり観察してから触れる</label>
-            <label><input type="radio" name="q1" value="B"> 面白そう！と思ったらすぐ飛びつく</label>
-        </div>
-
-        <div class="question-block">
-            <span class="question-text">Q2. 情報をキャッチするのが得意なのは？</span>
-            <label><input type="radio" name="q2" value="A"> イラストや写真など「目」から</label>
-            <label><input type="radio" name="q2" value="B"> お話や音など「耳」から</label>
-        </div>
-
-        <div class="question-block">
-            <span class="question-text">Q3. 困っている時のサインは？</span>
-            <label><input type="radio" name="q3" value="A"> 固まってしまったり、その場を離れたくなる</label>
-            <label><input type="radio" name="q3" value="B"> 言葉で伝えようとするが混乱してしまう</label>
-        </div>
-
+    <h1>🌱 子どもサポート・ナビ</h1>
+    
+    <div class="tab-menu">
+        <button class="tab-btn active" data-tab="mi">1. 強み (MI)</button>
+        <button class="tab-btn" data-tab="kishitsu">2. 気質</button>
+        <button class="tab-btn" data-tab="kankyo">3. 環境・実行機能</button>
     </div>
 
-    <button class="btn" onclick="calcResult()">結果をのぞいてみる</button>
-
-    <div id="result-area">
-        <h2 style="font-size: 1.2rem; text-align: center;">💡 支援のヒント（一例）</h2>
-        <div id="advice-content"></div>
-        <p style="font-size: 0.8rem; color: #888; margin-top: 15px;">
-            ※これは決めつけではなく、今日をより良く過ごすための「1つの視点」です。
-        </p>
+    <div id="mi" class="tab-content active">
+        <p>お子さんが「得意・好き」な項目にチェックを入れてください。</p>
+        <div class="question-block">
+            <label><input type="checkbox" class="mi-check" value="0"> 歌を歌ったりリズムに乗るのが好き（音楽）</label>
+            <label><input type="checkbox" class="mi-check" value="1"> 体を動かすこと、工作が得意（身体）</label>
+            <label><input type="checkbox" class="mi-check" value="2"> 絵を描いたり、地図を見るのが得意（空間）</label>
+            <label><input type="checkbox" class="mi-check" value="3"> おしゃべりや読書が好き（言語）</label>
+            <label><input type="checkbox" class="mi-check" value="4"> 数の計算やパズルが得意（論理）</label>
+            <label><input type="checkbox" class="mi-check" value="5"> 虫や植物、自然に関心がある（博物）</label>
+            <label><input type="checkbox" class="mi-check" value="6"> 友達の気持ちによく気づく（対人）</label>
+            <label><input type="checkbox" class="mi-check" value="7"> 自分の考えをしっかり持っている（内省）</label>
+        </div>
+        <button class="btn mi-btn" onclick="drawChart()">強みを視覚化する</button>
+        <div id="chart-container"><canvas id="miChart"></canvas></div>
     </div>
+
+    <div id="kishitsu" class="tab-content">
+        <p>「心のエンジン」の特徴を教えてください。</p>
+        <div class="question-block">
+            <span><b>新しい環境では？</b></span>
+            <label><input type="radio" name="ki1" value="慎重派。まずは端っこから観察。"> 慎重派。まずは端っこから観察。</label>
+            <label><input type="radio" name="ki1" value="積極派。どんどん飛び込んでいく。"> 積極派。どんどん飛び込んでいく。</label>
+        </div>
+        <button class="btn ki-btn" onclick="showTextResult('kishitsu')">関わり方のヒントを見る</button>
+    </div>
+
+    <div id="kankyo" class="tab-content">
+        <p>日常の「こまった」はどこから来ている？</p>
+        <div class="question-block">
+            <span><b>音や光への反応は？</b></span>
+            <label><input type="radio" name="ka1" value="イヤーマフや仕切り板で「情報の遮断」を試しましょう。"> 特定の音を怖がったり、眩しがることがある</label>
+            <label><input type="radio" name="ka1" value="五感の刺激よりも、手順の整理が有効かもしれません。"> 特に気にする様子はない</label>
+        </div>
+        <button class="btn ka-btn" onclick="showTextResult('kankyo')">環境設計のヒントを見る</button>
+    </div>
+
+    <div id="result-text" class="result-box"></div>
 </div>
 
 <script>
-    function calcResult() {
-        const q1 = document.querySelector('input[name="q1"]:checked')?.value;
-        const q2 = document.querySelector('input[name="q2"]:checked')?.value;
-        const q3 = document.querySelector('input[name="q3"]:checked')?.value;
+    // タブ切り替えの処理
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.tab-btn, .tab-content').forEach(el => el.classList.remove('active'));
+            btn.classList.add('active');
+            document.getElementById(btn.dataset.tab).classList.add('active');
+            document.getElementById('result-text').style.display = 'none';
+        });
+    });
 
-        if (!q1 || !q2 || !q3) {
-            alert("すべての質問に答えてみてね！");
-            return;
-        }
+    // 1. MIチャートの表示
+    let myChart = null;
+    function drawChart() {
+        const checks = document.querySelectorAll('.mi-check');
+        let dataValues = [1, 1, 1, 1, 1, 1, 1, 1]; // 初期値
+        checks.forEach(c => { if(c.checked) dataValues[c.value] = 5; });
 
-        let results = [];
+        const ctx = document.getElementById('miChart').getContext('2d');
+        if(myChart) myChart.destroy();
+        myChart = new Chart(ctx, {
+            type: 'radar',
+            data: {
+                labels: ['音楽', '身体', '空間', '言語', '論理', '博物', '対人', '内省'],
+                datasets: [{ label: 'お子さんの強み', data: dataValues, backgroundColor: 'rgba(255, 127, 127, 0.4)', borderColor: '#ff7f7f' }]
+            },
+            options: { scales: { r: { min: 0, max: 5, ticks: { display: false } } } }
+        });
+        document.getElementById('result-text').innerHTML = "✨ グラフが尖っているところが「入り口」です。そこから誘うと、新しい世界が広がりやすいですよ。";
+        document.getElementById('result-text').style.display = 'block';
+    }
 
-        // 💡 ここに結果の文章を自由に設定してください
-        if (q1 === "A") {
-            results.push("<b>【環境調整】</b> 初めてのことは「予習」があると安心できそうです。");
+    // 2 & 3. テキスト結果の表示
+    function showTextResult(type) {
+        let text = "";
+        if(type === 'kishitsu') {
+            const val = document.querySelector('input[name="ki1"]:checked')?.value;
+            text = val ? `💡 <b>関わり方のヒント:</b><br>${val}` : "選択してください";
         } else {
-            results.push("<b>【伴走】</b> 溢れる好奇心を安全に発散できる場所を一緒に探しましょう。");
+            const val = document.querySelector('input[name="ka1"]:checked')?.value;
+            text = val ? `💡 <b>環境調整のヒント:</b><br>${val}` : "選択してください";
         }
-
-        if (q2 === "A") {
-            results.push("<b>【ツール】</b> 視覚的なスケジュール表などが力になりそうです。");
-        } else {
-            results.push("<b>【対話】</b> 短く分かりやすい言葉での声かけが届きやすい時期かもしれません。");
-        }
-
-        if (q3 === "A") {
-            results.push("<b>【安心】</b> まずは「静かな場所」で心を落ち着ける時間を優先しましょう。");
-        }
-
-        // 表示を更新
-        const content = document.getElementById('advice-content');
-        content.innerHTML = results.map(r => `<p>✨ ${r}</p>`).join('');
-        document.getElementById('result-area').style.display = 'block';
-        
-        // 結果までスクロール
-        document.getElementById('result-area').scrollIntoView({ behavior: 'smooth' });
+        const resBox = document.getElementById('result-text');
+        resBox.innerHTML = text;
+        resBox.style.display = 'block';
     }
 </script>
 
