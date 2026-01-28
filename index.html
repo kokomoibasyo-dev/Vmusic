@@ -2,57 +2,180 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>子どもサポート・ナビ</title>
+    <link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        body { font-family: sans-serif; line-height: 1.6; max-width: 600px; margin: auto; padding: 20px; background: #f9f9f9; }
-        .card { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        .btn { background: #4CAF50; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; }
-        .result { margin-top: 20px; padding: 15px; background: #e7f3ff; border-left: 5px solid #2196F3; display: none; }
+        :root {
+            --main-color: #76ba1b; /* 優しい緑 */
+            --bg-color: #fdfbf7;   /* 暖かい白 */
+            --accent-color: #ff9a9e; /* アクセントのピンク */
+        }
+
+        body {
+            font-family: 'Zen Maru Gothic', sans-serif;
+            background-color: var(--bg-color);
+            color: #444;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .container {
+            max-width: 600px;
+            width: 100%;
+            background: white;
+            padding: 30px;
+            border-radius: 30px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+            border: 3px dashed #e0e0e0; /* 手書き風の枠線 */
+        }
+
+        h1 {
+            text-align: center;
+            color: var(--main-color);
+            font-size: 1.5rem;
+            margin-bottom: 30px;
+        }
+
+        .question-block {
+            margin-bottom: 25px;
+            padding: 15px;
+            background: #fff9f0;
+            border-radius: 15px;
+        }
+
+        .question-text {
+            font-weight: bold;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        label {
+            display: block;
+            margin: 10px 0;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 8px;
+            transition: 0.3s;
+        }
+
+        label:hover {
+            background-color: #f0f0f0;
+        }
+
+        .btn {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            background-color: var(--main-color);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 4px 0 #5a8d14;
+            margin-top: 20px;
+        }
+
+        .btn:active {
+            transform: translateY(3px);
+            box-shadow: none;
+        }
+
+        #result-area {
+            margin-top: 30px;
+            padding: 20px;
+            border-radius: 20px;
+            background-color: #eef9ff;
+            border: 2px solid #bcdff1;
+            display: none;
+            animation: fadeIn 0.5s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
     </style>
 </head>
 <body>
 
-<div class="card">
-    <h2>🌟 特徴の見極めツール（試作版）</h2>
-    <p>お子さんの今の様子に近いものを選んでください。</p>
-    
-    <div id="quiz">
-        <p><strong>Q1. 新しい場所に行くとき、お子さんの様子は？</strong></p>
-        <input type="radio" name="q1" value="careful"> じっくり観察してから動く（慎重派）<br>
-        <input type="radio" name="q1" value="active"> どんどん中に入っていく（積極派）<br>
+<div class="container">
+    <h1>🌱 お子さんの「心地よい」を見つけるヒント</h1>
 
-        <p><strong>Q2. 何かに集中している時に声をかけると？</strong></p>
-        <input type="radio" name="q2" value="visual"> 目に付くところに絵や図があると気づきやすい<br>
-        <input type="radio" name="q2" value="auditory"> 耳元で名前を呼ぶと気づきやすい<br>
+    <div id="quiz-container">
+        
+        <div class="question-block">
+            <span class="question-text">Q1. 興味があるものへの向かい方は？</span>
+            <label><input type="radio" name="q1" value="A"> 慎重にじっくり観察してから触れる</label>
+            <label><input type="radio" name="q1" value="B"> 面白そう！と思ったらすぐ飛びつく</label>
+        </div>
+
+        <div class="question-block">
+            <span class="question-text">Q2. 情報をキャッチするのが得意なのは？</span>
+            <label><input type="radio" name="q2" value="A"> イラストや写真など「目」から</label>
+            <label><input type="radio" name="q2" value="B"> お話や音など「耳」から</label>
+        </div>
+
+        <div class="question-block">
+            <span class="question-text">Q3. 困っている時のサインは？</span>
+            <label><input type="radio" name="q3" value="A"> 固まってしまったり、その場を離れたくなる</label>
+            <label><input type="radio" name="q3" value="B"> 言葉で伝えようとするが混乱してしまう</label>
+        </div>
+
     </div>
 
-    <button class="btn" onclick="showResult()" style="margin-top: 20px;">結果を見る</button>
+    <button class="btn" onclick="calcResult()">結果をのぞいてみる</button>
 
-    <div id="result" class="result">
-        <h3>💡 支援のヒント</h3>
-        <p id="advice"></p>
-        <p><small>※これは固定的な診断ではありません。今この瞬間の「環境調整」のヒントとしてお使いください。</small></p>
+    <div id="result-area">
+        <h2 style="font-size: 1.2rem; text-align: center;">💡 支援のヒント（一例）</h2>
+        <div id="advice-content"></div>
+        <p style="font-size: 0.8rem; color: #888; margin-top: 15px;">
+            ※これは決めつけではなく、今日をより良く過ごすための「1つの視点」です。
+        </p>
     </div>
 </div>
 
 <script>
-    function showResult() {
+    function calcResult() {
         const q1 = document.querySelector('input[name="q1"]:checked')?.value;
         const q2 = document.querySelector('input[name="q2"]:checked')?.value;
-        let advice = "";
+        const q3 = document.querySelector('input[name="q3"]:checked')?.value;
 
-        if (q1 === "careful") {
-            advice += "【環境調整】事前の見通し（写真や動画）があると安心しやすいタイプです。 ";
+        if (!q1 || !q2 || !q3) {
+            alert("すべての質問に答えてみてね！");
+            return;
+        }
+
+        let results = [];
+
+        // 💡 ここに結果の文章を自由に設定してください
+        if (q1 === "A") {
+            results.push("<b>【環境調整】</b> 初めてのことは「予習」があると安心できそうです。");
         } else {
-            advice += "【伴走】興味のままに動ける安全な範囲を広げてあげましょう。 ";
+            results.push("<b>【伴走】</b> 溢れる好奇心を安全に発散できる場所を一緒に探しましょう。");
         }
 
-        if (q2 === "visual") {
-            advice += "【ツール】声かけだけでなく、イラストやタイマーを併用するとスムーズです。";
+        if (q2 === "A") {
+            results.push("<b>【ツール】</b> 視覚的なスケジュール表などが力になりそうです。");
+        } else {
+            results.push("<b>【対話】</b> 短く分かりやすい言葉での声かけが届きやすい時期かもしれません。");
         }
 
-        document.getElementById('advice').innerText = advice || "質問にすべて答えてくださいね。";
-        document.getElementById('result').style.display = "block";
+        if (q3 === "A") {
+            results.push("<b>【安心】</b> まずは「静かな場所」で心を落ち着ける時間を優先しましょう。");
+        }
+
+        // 表示を更新
+        const content = document.getElementById('advice-content');
+        content.innerHTML = results.map(r => `<p>✨ ${r}</p>`).join('');
+        document.getElementById('result-area').style.display = 'block';
+        
+        // 結果までスクロール
+        document.getElementById('result-area').scrollIntoView({ behavior: 'smooth' });
     }
 </script>
 
