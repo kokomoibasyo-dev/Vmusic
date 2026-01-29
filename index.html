@@ -16,10 +16,12 @@
         .container { max-width: 550px; width: 100%; margin: 20px auto; background: white; padding: 25px; border-radius: 30px; box-shadow: 0 15px 35px rgba(220, 180, 150, 0.15); border: 1px solid rgba(0,0,0,0.03); box-sizing: border-box;}
         .header h1 { font-size: 1.8rem; color: #d48344; margin: 10px 0; text-align: center; }
         
-        /* 3つのNOボックス */
         .no-box { background: #fff; border: 2px solid #f9e2c4; border-radius: 20px; padding: 15px; margin-bottom: 20px; text-align: center; }
         
-        /* タブメニュー（復活！） */
+        /* 冒頭メッセージボックス（復活！） */
+        .intro-box { background: #fff5e6; border-radius: 15px; padding: 15px; font-size: 0.85rem; line-height: 1.6; border: 1px solid #f9e2c4; text-align: left; margin-bottom: 20px; }
+        .intro-box strong { color: #d48344; }
+
         .tab-menu { display: flex; gap: 8px; margin-bottom: 25px; overflow-x: auto; padding-bottom: 5px; }
         .tab-btn { flex: 1; min-width: 80px; padding: 12px 5px; border: none; border-radius: 16px; cursor: pointer; font-weight: bold; background: #f0f0f0; transition: all 0.2s ease; font-family: inherit; font-size: 0.8rem; color: #999; }
         .tab-btn.active { color: white; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
@@ -28,7 +30,6 @@
         .tab-btn[data-tab="kankyo"].active { background: var(--ka-color); }
         .tab-btn[data-tab="total"].active { background: var(--to-color); }
 
-        /* コンテンツの表示・非表示 */
         .tab-content { display: none; }
         .tab-content.active { display: block; animation: fadeIn 0.4s; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
@@ -39,8 +40,7 @@
         .radio-label { text-align: center; font-size: 0.6rem; cursor: pointer; padding: 8px 4px; border-radius: 12px; border: 1px solid #eee; }
         .radio-label input { width: 20px; height: 20px; margin-bottom: 5px; }
         
-        .btn { width: 100%; padding: 18px; color: white; border: none; border-radius: 50px; font-size: 1.1rem; font-weight: bold; cursor: pointer; margin-top: 15px; box-shadow: 0 6px 15px rgba(0,0,0,0.1); transition: 0.2s; }
-        .btn:active { transform: scale(0.98); }
+        .btn { width: 100%; padding: 18px; color: white; border: none; border-radius: 50px; font-size: 1.1rem; font-weight: bold; cursor: pointer; margin-top: 15px; box-shadow: 0 6px 15px rgba(0,0,0,0.1); }
         
         .res-area { margin-top: 25px; padding: 25px; border-radius: 25px; display: none; background: #fff; border-top: 8px solid; box-shadow: 0 10px 30px rgba(0,0,0,0.05); font-size: 0.9rem; }
         .summary-box { background: #fdfdfd; padding: 18px; border-radius: 18px; margin-bottom: 15px; border: 1px solid #f0f0f0; border-left: 6px solid #ccc; font-size: 0.85rem; }
@@ -48,7 +48,7 @@
         .message-box { background: #f0f7ff; padding: 25px; border-radius: 20px; margin-top: 30px; font-size: 0.9rem; border: 1px solid #e0f0ff; }
         
         #chart-container { width: 100%; max-width: 320px; margin: 20px auto; }
-        @media print { .tab-menu, .btn, .no-box, .q-block { display: none !important; } }
+        @media print { .tab-menu, .btn, .no-box, .q-block, .intro-box { display: none !important; } }
     </style>
 </head>
 <body>
@@ -61,6 +61,16 @@
         <div style="display: flex; justify-content: space-around; font-size: 0.75rem;">
             <span>❌ 診断じゃない</span><span>❌ 決めつけない</span><span>❌ 固定しない</span>
         </div>
+    </div>
+
+    <div class="intro-box">
+        🕊️ <strong>このツールの目的</strong><br>
+        「なぜ、あんな行動をするんだろう？」という疑問を<strong>「理解のヒント」</strong>に変え、親子がもっと楽に笑い合えるヒントを探るためのガイドです。<br><br>
+        📌 <strong>対象年齢の目安：3歳 〜 12歳頃</strong><br><br>
+        🌱 <strong>0〜2歳のお子さんのご家族へ</strong><br>
+        発達の個人差がとても大きい時期です。「今はこんな傾向なのかな？」と、今を愛でるヒントにしてください。<br><br>
+        🎓 <strong>13歳以上のお子さんのご家族へ</strong><br>
+        思春期以降は本人の主観が大切になります。結果を本人と一緒に眺めて「自分ではどう思う？」と対話のきっかけにしてみてください。
     </div>
 
     <div class="tab-menu">
@@ -103,7 +113,9 @@
 </div>
 
 <script>
-// データとロジック（具体的な内容は維持）
+/* データ定義、ロジック部分は前回の「具体的に踏み込んだ内容」を
+   すべて保持しています。
+*/
 const miDetails = {
     "言語": {能力:"言葉を操り、想いを伝える力", 遊び:"しりとり、お話作り、読み聞かせ", 関わり:"「今の言い方、素敵だね」と表現を具体的にほめる", 頼る人:"お喋りを楽しんでくれるおじいちゃんやおばあちゃん"},
     "論理": {能力:"筋道を立てて考え、法則を見つける力", 遊び:"数遊び、パズル、科学実験、レゴ", 関わり:"「なぜこうなると思う？」と予測を立てる問いかけを", 頼る人:"将棋やトランプを根気よく付き合える親戚"},
@@ -198,12 +210,11 @@ function generateTotalDiagnosis() {
 
         <div class="message-box">
             <strong>💌 お父さん・お母さんへ</strong><br>
-            いつも、本当にお疲れ様です。お子さんを理解しようとするその温かなまなざしが、何よりの支援です。完璧を目指さず、まずは今日の結果を一つの「面白い発見」として、お子さんと向き合ってみてください。
+            いつも、本当にお疲れ様です。お子さんのことをもっと理解したいと願うその姿勢が、すでに最高のアドバイスです。今日の結果をきっかけに、少しだけ「この子の通訳者」になったつもりでお子さんと向き合ってみてくださいね。
         </div>`;
     document.getElementById('total-content').innerHTML = html;
 }
 
-// タブ切り替えロジック
 document.querySelectorAll('.tab-btn').forEach(btn => {
     btn.addEventListener('click', () => {
         document.querySelectorAll('.tab-btn, .tab-content').forEach(el => el.classList.remove('active'));
