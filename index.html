@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>子どもサポート・ナビ</title>
+    <title>子どもサポート・ナビ 完全版</title>
     <link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -19,7 +19,11 @@
         /* 3つのNOボックス */
         .no-box { background: #fff; border: 2px solid #f9e2c4; border-radius: 20px; padding: 15px; margin-bottom: 20px; text-align: center; }
         
-        /* タブメニュー（復活！） */
+        /* 進捗バー */
+        .progress-container { height: 8px; background: #eee; border-radius: 4px; margin-bottom: 20px; overflow: hidden; }
+        .progress-bar { height: 100%; background: var(--mi-color); width: 0%; transition: 0.3s; }
+
+        /* タブメニュー */
         .tab-menu { display: flex; gap: 8px; margin-bottom: 25px; overflow-x: auto; padding-bottom: 5px; }
         .tab-btn { flex: 1; min-width: 80px; padding: 12px 5px; border: none; border-radius: 16px; cursor: pointer; font-weight: bold; background: #f0f0f0; transition: all 0.2s ease; font-family: inherit; font-size: 0.8rem; color: #999; }
         .tab-btn.active { color: white; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
@@ -28,27 +32,32 @@
         .tab-btn[data-tab="kankyo"].active { background: var(--ka-color); }
         .tab-btn[data-tab="total"].active { background: var(--to-color); }
 
-        /* コンテンツの表示・非表示 */
+        /* コンテンツ */
         .tab-content { display: none; }
         .tab-content.active { display: block; animation: fadeIn 0.4s; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        .q-block { margin-bottom: 20px; padding: 20px; border-radius: 20px; background: #fff; border: 1px solid #f0f0f0; box-shadow: 0 4px 6px rgba(0,0,0,0.02); }
+        .q-block { margin-bottom: 20px; padding: 20px; border-radius: 20px; background: #fff; border: 1px solid #f0f0f0; box-shadow: 0 4px 6px rgba(0,0,0,0.02); transition: 0.3s; }
+        .q-block.unanswered { border: 2px solid #ff7f7f; background: #fff5f5; }
         .q-text { font-weight: bold; font-size: 1rem; margin-bottom: 18px; display: block; color: #333; line-height: 1.4; }
         .radio-group { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
-        .radio-label { text-align: center; font-size: 0.6rem; cursor: pointer; padding: 8px 4px; border-radius: 12px; border: 1px solid #eee; }
-        .radio-label input { width: 20px; height: 20px; margin-bottom: 5px; }
+        .radio-label { text-align: center; font-size: 0.6rem; cursor: pointer; padding: 8px 4px; border-radius: 12px; border: 1px solid #eee; background: #fafafa; }
+        .radio-label:has(input:checked) { background: #eee; font-weight: bold; }
+        .radio-label input { width: 18px; height: 18px; margin-bottom: 5px; cursor: pointer; }
         
         .btn { width: 100%; padding: 18px; color: white; border: none; border-radius: 50px; font-size: 1.1rem; font-weight: bold; cursor: pointer; margin-top: 15px; box-shadow: 0 6px 15px rgba(0,0,0,0.1); transition: 0.2s; }
+        .btn:disabled { background: #ccc !important; cursor: not-allowed; box-shadow: none; }
         .btn:active { transform: scale(0.98); }
+        .btn-secondary { background: #999; font-size: 0.9rem; padding: 12px; }
         
         .res-area { margin-top: 25px; padding: 25px; border-radius: 25px; display: none; background: #fff; border-top: 8px solid; box-shadow: 0 10px 30px rgba(0,0,0,0.05); font-size: 0.9rem; }
         .summary-box { background: #fdfdfd; padding: 18px; border-radius: 18px; margin-bottom: 15px; border: 1px solid #f0f0f0; border-left: 6px solid #ccc; font-size: 0.85rem; }
         .translation-box { background: #fff5f5; border: 2px solid #ff7f7f; padding: 15px; border-radius: 20px; margin: 20px 0; font-size: 0.9rem; }
-        .message-box { background: #f0f7ff; padding: 25px; border-radius: 20px; margin-top: 30px; font-size: 0.9rem; border: 1px solid #e0f0ff; }
+        .message-box { background: #f0f7ff; padding: 20px; border-radius: 20px; margin-top: 20px; font-size: 0.9rem; border: 1px solid #e0f0ff; }
+        .todo-box { background: #fffdf0; padding: 20px; border-radius: 20px; margin-top: 20px; border: 2px dashed #ffb347; }
         
         #chart-container { width: 100%; max-width: 320px; margin: 20px auto; }
-        @media print { .tab-menu, .btn, .no-box, .q-block { display: none !important; } }
+        @media print { .tab-menu, .btn, .no-box, .q-block, .progress-container, .btn-secondary { display: none !important; } }
     </style>
 </head>
 <body>
@@ -57,11 +66,13 @@
     <div class="header"><h1>🌱 子どもサポート・ナビ</h1></div>
     
     <div class="no-box">
-        <strong style="color: #e67e22; font-size: 1rem; display: block; margin-bottom: 8px;">🛡️ 安心してお使いいただくために</strong>
+        <strong style="color: #d48344; font-size: 0.9rem; display: block; margin-bottom: 8px;">🛡️ 安心してお使いいただくために</strong>
         <div style="display: flex; justify-content: space-around; font-size: 0.75rem;">
             <span>❌ 診断じゃない</span><span>❌ 決めつけない</span><span>❌ 固定しない</span>
         </div>
     </div>
+
+    <div class="progress-container"><div id="p-bar" class="progress-bar"></div></div>
 
     <div class="tab-menu">
         <button class="tab-btn active" data-tab="mi">✨強み</button>
@@ -73,8 +84,10 @@
     <div id="mi" class="tab-content active">
         <div id="mi-q"></div>
         <button class="btn" style="background:var(--mi-color)" onclick="calcMI()">強みのヒントを見る 🔍</button>
-        <div id="chart-container"><canvas id="miChart"></canvas></div>
-        <div id="mi-res" class="res-area" style="border-color:var(--mi-color)"></div>
+        <div id="mi-res" class="res-area" style="border-color:var(--mi-color)">
+            <div id="chart-container"><canvas id="miChart"></canvas></div>
+            <div id="mi-res-text"></div>
+        </div>
     </div>
 
     <div id="kishitsu" class="tab-content">
@@ -90,11 +103,12 @@
     </div>
 
     <div id="total" class="tab-content">
-        <div id="capture-area">
+        <div id="capture-area" style="padding: 10px; background: white;">
             <h2 style="text-align:center; color:var(--to-color);">🤝 お子さんへの伴走ガイド</h2>
             <div id="total-content"></div>
         </div>
-        <button class="btn" style="background:var(--to-color)" onclick="window.print()">🖨️ 結果を印刷する</button>
+        <button class="btn" style="background:var(--to-color)" onclick="saveAsImage()">📸 画像として保存する</button>
+        <button class="btn btn-secondary" onclick="window.print()">🖨️ 印刷用画面を開く</button>
     </div>
 
     <div style="text-align: center; font-size: 0.7rem; color: #bbb; margin-top: 40px; border-top: 1px solid #eee; padding-top: 20px;">
@@ -103,7 +117,7 @@
 </div>
 
 <script>
-// データとロジック（具体的な内容は維持）
+// データ定義
 const miDetails = {
     "言語": {能力:"言葉を操り、想いを伝える力", 遊び:"しりとり、お話作り、読み聞かせ", 関わり:"「今の言い方、素敵だね」と表現を具体的にほめる", 頼る人:"お喋りを楽しんでくれるおじいちゃんやおばあちゃん"},
     "論理": {能力:"筋道を立てて考え、法則を見つける力", 遊び:"数遊び、パズル、科学実験、レゴ", 関わり:"「なぜこうなると思う？」と予測を立てる問いかけを", 頼る人:"将棋やトランプを根気よく付き合える親戚"},
@@ -135,26 +149,68 @@ const miData = [{c:"言語",q:"📚 おしゃべりや物語作りが好き"},{c
 const kiData = [{t:"デリケート",q:"👂 音や刺激にとても敏感"},{t:"デリケート",q:"😟 失敗を怖がる気持ちが強い"},{t:"デリケート",q:"🌳 初めての場所では慎重"},{t:"アクティブ",q:"🚀 考えるより先に体が動く"},{t:"アクティブ",q:"🔥 エネルギーが溢れている"},{t:"エンジェル",q:"🌸 穏やかで周りに合わせがち"},{t:"エンジェル",q:"🤝 調和を優先させることが多い"},{t:"テキスト",q:"⏰ ルーチンや決まりを好む"},{t:"テキスト",q:"📉 具体的な数字やルールが安心"},{t:"ネガティブ",q:"⚡ 感情の爆発が激しい"},{t:"ネガティブ",q:"💎 自分のこだわりが非常に強い"},{t:"デリケート",q:"👀 空気を読みすぎて疲れやすい"},{t:"アクティブ",q:"🏃‍♂️ 常に新しい刺激を求めている"},{t:"テキスト",q:"📦 物の配置が決まっていると安心"},{t:"エンジェル",q:"🕊️ 争いを避け、平和を願う"}];
 const kaData = [{t:"視覚支援",q:"📢 言葉の指示を忘れやすい"},{t:"視覚支援",q:"🖼️ 図や写真の方が理解しやすい"},{t:"視覚支援",q:"📅 予定が目に見えると安心する"},{t:"聴覚配慮",q:"👂 騒がしい場所だと混乱する"},{t:"聴覚配慮",q:"🎧 静かな場所でホッとできる"},{t:"構造化",q:"🧺 片付け場所が決まってないと困る"},{t:"構造化",q:"🪜 手順を細かく分けてほしい"},{t:"感覚統合",q:"👕 特定の感触を嫌がる"},{t:"感覚統合",q:"🌀 高い所や回転が大好き"},{t:"実行機能",q:"⏸️ 行動の切り替えが難しい"},{t:"実行機能",q:"📝 忘れ物や紛失が多い"},{t:"実行機能",q:"⏳ 時間の流れを掴みにくい"},{t:"感覚統合",q:"🧸 ぎゅっとする刺激で落着く"},{t:"実行機能",q:"🎒 準備の順番がわからなくなる"},{t:"構造化",q:"🤫 囲われた空間が落ち着く"}];
 
-function autoScroll(el) { const b = el.closest('.q-block').nextElementSibling; if (b && b.classList.contains('q-block')) setTimeout(() => b.scrollIntoView({ behavior: 'smooth', block: 'center' }), 300); }
-function create5Scale(name) { return `<div class="radio-group">${['よく<br>あてはまる','あてはまる','わから<br>ない','あまり<br>あてはまらない','あてはま<br>らない'].map((l,i)=>`<label class="radio-label"><input type="radio" name="${name}" value="${4-i}" onclick="autoScroll(this)">${l}</label>`).join('')}</div>`; }
+const todos = [
+    "今日、お子さんが笑った瞬間を一つだけメモしてみましょう。",
+    "「ありがとう」の代わりに「助かったよ」と伝えてみてください。",
+    "5分間だけ、お子さんの世界（遊び）に全力で乗っかってみましょう。",
+    "お子さんの好きなところを、寝顔を見ながら心の中で3つ唱えてください。",
+    "今日は「早く」を「〇〇が終わったら」と言い換えてみましょう。"
+];
 
+// 初期設定
 function setup() {
     ['mi','ki','ka'].forEach(type => {
         const target = document.getElementById(type+'-q');
         const data = type === 'mi' ? miData : type === 'ki' ? kiData : kaData;
-        data.forEach((d,i)=> target.innerHTML += `<div class="q-block"><span class="q-text">${i+1}. ${d.q}</span>${create5Scale(type+i)}</div>`);
+        data.forEach((d,i)=> target.innerHTML += `<div class="q-block" id="block-${type}${i}"><span class="q-text">${i+1}. ${d.q}</span>${create5Scale(type, i)}</div>`);
     });
+    updateProgress();
 }
-setup();
 
+function create5Scale(type, idx) {
+    const name = type + idx;
+    return `<div class="radio-group">${['よく<br>あてはまる','あてはまる','わから<br>ない','あまり<br>あてはまらない','あてはま<br>らない'].map((l,i)=>`<label class="radio-label"><input type="radio" name="${name}" value="${4-i}" onclick="onSelect('${type}', ${idx})">${l}</label>`).join('')}</div>`;
+}
+
+function onSelect(type, idx) {
+    document.getElementById(`block-${type}${idx}`).classList.remove('unanswered');
+    updateProgress();
+    const next = document.getElementById(`block-${type}${idx+1}`);
+    if (next) setTimeout(() => next.scrollIntoView({ behavior: 'smooth', block: 'center' }), 300);
+}
+
+function updateProgress() {
+    const totalQ = miData.length + kiData.length + kaData.length;
+    const answered = document.querySelectorAll('input:checked').length;
+    const pct = (answered / totalQ) * 100;
+    document.getElementById('p-bar').style.width = pct + '%';
+}
+
+function validate(type, data) {
+    let allAnswered = true;
+    data.forEach((d, i) => {
+        if (!document.querySelector(`input[name="${type}${i}"]:checked`)) {
+            document.getElementById(`block-${type}${i}`).classList.add('unanswered');
+            allAnswered = false;
+        }
+    });
+    if (!allAnswered) {
+        alert('未回答の質問があります。赤色の項目を確認してくださいね。');
+        document.querySelector('.unanswered').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+    return allAnswered;
+}
+
+// 算出ロジック
 let results = { mi:null, ki:null, ka:null };
 
 function calcMI() {
-    let scores = {}; miData.forEach((d,i) => { const v = parseInt(document.querySelector(`input[name="mi${i}"]:checked`)?.value || 0); scores[d.c] = (scores[d.c] || 0) + v; });
+    if (!validate('mi', miData)) return;
+    let scores = {}; miData.forEach((d,i) => { scores[d.c] = (scores[d.c] || 0) + parseInt(document.querySelector(`input[name="mi${i}"]:checked`).value); });
     results.mi = scores; showMiChart(scores);
     const top = Object.keys(scores).reduce((a, b) => scores[a] > scores[b] ? a : b);
     const d = miDetails[top];
-    document.getElementById('mi-res').innerHTML = `<h3>🌟 強み：${top}的知能</h3>能力：${d.能力}<br>遊び：${d.遊び}<br>関わり：${d.関わり}<br>頼る人：${d.頼る人}`;
+    document.getElementById('mi-res-text').innerHTML = `<h3>🌟 強み：${top}的知能</h3>能力：${d.能力}<br>遊び：${d.遊び}<br>関わり：${d.関わり}<br>頼る人：${d.頼る人}`;
     document.getElementById('mi-res').style.display = 'block'; checkReady();
 }
 
@@ -162,11 +218,12 @@ function showMiChart(scores) {
     const ctx = document.getElementById('miChart').getContext('2d');
     const labels = ["言語","論理","空間","身体","音楽","対人","内省","博物"];
     if(window.miRadar) window.miRadar.destroy();
-    window.miRadar = new Chart(ctx, { type:'radar', data:{ labels, datasets:[{ label:'バランス', data: labels.map(l=>scores[l]||0), backgroundColor:'rgba(255,127,127,0.2)', borderColor: '#ff7f7f', borderWidth:2 }]}, options:{ scales:{ r:{ min:0, max:8, ticks:{ display:false }}} }});
+    window.miRadar = new Chart(ctx, { type:'radar', data:{ labels, datasets:[{ label:'お子さんのバランス', data: labels.map(l=>scores[l]||0), backgroundColor:'rgba(255,127,127,0.2)', borderColor: '#ff7f7f', borderWidth:3 }]}, options:{ scales:{ r:{ min:0, max:8, ticks:{ display:false }, pointLabels:{ font:{size:12, weight:'bold'} }}} }});
 }
 
 function calcKi() {
-    let types = {}; kiData.forEach((d,i) => { const v = parseInt(document.querySelector(`input[name="ki${i}"]:checked`)?.value || 0); types[d.t] = (types[d.t] || 0) + v; });
+    if (!validate('ki', kiData)) return;
+    let types = {}; kiData.forEach((d,i) => { types[d.t] = (types[d.t] || 0) + parseInt(document.querySelector(`input[name="ki${i}"]:checked`).value); });
     const top = Object.keys(types).reduce((a, b) => types[a] > types[b] ? a : b);
     results.ki = { type: top, detail: kiDetails[top] };
     document.getElementById('ki-res').innerHTML = `<h3>🌈 気質：${top}タイプ</h3>困る場面：${kiDetails[top].困り}<br>翻訳：${kiDetails[top].翻訳}<br>対応：${kiDetails[top].対応}`;
@@ -174,17 +231,19 @@ function calcKi() {
 }
 
 function calcKa() {
-    let scores = {}; kaData.forEach((d,i) => { const v = parseInt(document.querySelector(`input[name="ka${i}"]:checked`)?.value || 0); scores[d.t] = (scores[d.t] || 0) + v; });
+    if (!validate('ka', kaData)) return;
+    let scores = {}; kaData.forEach((d,i) => { scores[d.t] = (scores[d.t] || 0) + parseInt(document.querySelector(`input[name="ka${i}"]:checked`).value); });
     const top = Object.keys(scores).reduce((a, b) => scores[a] > scores[b] ? a : b);
     results.ka = { type: top, detail: kaDetails[top] };
     document.getElementById('ka-res').innerHTML = `<h3>🏠 環境：${top}への配慮</h3>困る場面：${kaDetails[top].困り}<br>手立て：${kaDetails[top].手立て}<br>声かけ：${kaDetails[top].声かけ}`;
     document.getElementById('ka-res').style.display = 'block'; checkReady();
 }
 
-function checkReady() { if([results.mi, results.ki, results.ka].filter(r => r !== null).length >= 2) { document.getElementById('total-btn').disabled = false; } }
+function checkReady() { if(results.mi && results.ki && results.ka) { document.getElementById('total-btn').disabled = false; } }
 
 function generateTotalDiagnosis() {
-    const miTop = results.mi ? Object.keys(results.mi).reduce((a, b) => results.mi[a] > results.mi[b] ? a : b) : "（未回答）";
+    const miTop = Object.keys(results.mi).reduce((a, b) => results.mi[a] > results.mi[b] ? a : b);
+    const randomTodo = todos[Math.floor(Math.random() * todos.length)];
     let html = `
         <div class="summary-box" style="border-left-color:var(--mi-color)">🤝 <strong>強み（${miTop}）</strong>：${miDetails[miTop].能力}。${miDetails[miTop].頼る人}に協力を仰ぎましょう。</div>
         <div class="summary-box" style="border-left-color:var(--ki-color)">🫂 <strong>性格（${results.ki.type}）</strong>：${results.ki.detail.翻訳}。</div>
@@ -196,14 +255,29 @@ function generateTotalDiagnosis() {
             大人が<strong>${results.ka.detail.手立て}</strong>を用意し、<strong>「${results.ki.detail.対応}」</strong>を心がけることで、お子さんはより過ごしやすくなります。
         </div>
 
+        <div class="todo-box">
+            <strong>🎁 今日からできる小さな一歩</strong><br>
+            ${randomTodo}
+        </div>
+
         <div class="message-box">
             <strong>💌 お父さん・お母さんへ</strong><br>
-            いつも、本当にお疲れ様です。お子さんを理解しようとするその温かなまなざしが、何よりの支援です。完璧を目指さず、まずは今日の結果を一つの「面白い発見」として、お子さんと向き合ってみてください。
+            いつも、本当にお疲れ様です。お子さんを理解しようとするその温かなまなざしが、何よりの支援です。
         </div>`;
     document.getElementById('total-content').innerHTML = html;
 }
 
-// タブ切り替えロジック
+// 画像保存
+async function saveAsImage() {
+    const area = document.getElementById('capture-area');
+    const canvas = await html2canvas(area);
+    const link = document.createElement('a');
+    link.download = 'kids-support-guide.png';
+    link.href = canvas.toDataURL();
+    link.click();
+}
+
+// タブ
 document.querySelectorAll('.tab-btn').forEach(btn => {
     btn.addEventListener('click', () => {
         document.querySelectorAll('.tab-btn, .tab-content').forEach(el => el.classList.remove('active'));
@@ -213,6 +287,8 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
         window.scrollTo({top: 0, behavior: 'smooth'});
     });
 });
+
+setup();
 </script>
 </body>
 </html>
