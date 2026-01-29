@@ -12,17 +12,34 @@
             --mi-color: #ff7f7f; --ki-color: #ffb347; --ka-color: #76ba1b; --to-color: #4db8ff;
             --bg-color: #fffaf0; --text: #444;
         }
-        body { font-family: 'Zen Maru Gothic', sans-serif; background-color: var(--bg-color); color: var(--text); margin: 0; padding: 10px; display: flex; justify-content: center; }
-        .container { max-width: 600px; width: 100%; background: white; padding: 20px; border-radius: 25px; box-shadow: 0 8px 25px rgba(0,0,0,0.08); border: 2px solid #eee; position: relative; }
+        /* bodyのflexを解除し、縦に並ぶよう修正 */
+        body { 
+            font-family: 'Zen Maru Gothic', sans-serif; 
+            background-color: var(--bg-color); 
+            color: var(--text); 
+            margin: 0; 
+            padding: 10px; 
+            display: block; 
+        }
+        /* コンテナが画面中央に1枚のカードとして表示されるように修正 */
+        .container { 
+            max-width: 600px; 
+            width: 100%; 
+            margin: 20px auto; 
+            background: white; 
+            padding: 20px; 
+            border-radius: 25px; 
+            box-shadow: 0 8px 25px rgba(0,0,0,0.08); 
+            border: 2px solid #eee; 
+            box-sizing: border-box;
+        }
         
-        /* タイトルと注意書き */
         .header { text-align: center; margin-bottom: 25px; }
         .header h1 { font-size: 1.6rem; color: #d48344; margin: 10px 0; }
         .intro-box { background: #fff5e6; border-radius: 15px; padding: 15px; font-size: 0.85rem; line-height: 1.6; border: 1px solid #f9e2c4; text-align: left; margin-bottom: 20px; }
         .intro-box strong { color: #d48344; }
 
-        /* タブ */
-        .tab-menu { display: flex; gap: 4px; margin-bottom: 20px; }
+        .tab-menu { display: flex; gap: 4px; margin-bottom: 20px; width: 100%; }
         .tab-btn { flex: 1; padding: 10px 2px; border: none; border-radius: 10px; cursor: pointer; font-weight: bold; background: #f0f0f0; transition: 0.3s; font-family: inherit; font-size: 0.75rem; color: #888; }
         .tab-btn.active { color: white; }
         .tab-btn[data-tab="mi"].active { background: var(--mi-color); }
@@ -31,11 +48,10 @@
         .tab-btn[data-tab="total"].active { background: var(--to-color); }
         .tab-btn:disabled { opacity: 0.3; }
 
-        .tab-content { display: none; animation: fadeIn 0.4s; }
+        .tab-content { display: none; animation: fadeIn 0.4s; width: 100%; }
         .tab-content.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        /* 質問スタイル (スマホ向けにボタン化) */
         .q-block { margin-bottom: 20px; padding: 15px; border-radius: 15px; border: 1px solid #eee; background: #fff; }
         .q-text { font-weight: bold; font-size: 0.95rem; margin-bottom: 12px; display: block; color: #333; }
         
@@ -46,7 +62,6 @@
         .btn { width: 100%; padding: 16px; color: white; border: none; border-radius: 50px; font-size: 1.1rem; font-weight: bold; cursor: pointer; margin-top: 15px; box-shadow: 0 4px 0 rgba(0,0,0,0.1); }
         .btn-save { background: #999; margin-top: 10px; font-size: 0.9rem; }
         
-        /* 結果表示 */
         .res-area { margin-top: 20px; padding: 20px; border-radius: 20px; display: none; border-left: 8px solid; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
         .total-card { padding: 15px; border-radius: 20px; background: white; }
         .summary-box { background: #fff; padding: 15px; border-radius: 15px; margin-bottom: 15px; border: 1px solid #eee; border-left: 8px solid #ccc; font-size: 0.9rem; }
@@ -63,7 +78,7 @@
         <h1>🌱 子どもサポート・ナビ</h1>
     </div>
 
-   <div class="intro-box">
+    <div class="intro-box">
         <div style="text-align: center; border-bottom: 1px solid #f9e2c4; margin-bottom: 15px; padding-bottom: 10px;">
             <strong style="color: #e67e22; font-size: 1rem;">🛡️ 大切な「3つのNO」</strong><br>
             <span style="font-size: 0.8rem;">
@@ -86,11 +101,6 @@
         思春期以降は本人の主観が大切になります。結果を本人と一緒に眺めて「自分ではどう思う？」と対話のきっかけにしてみてください。
     </div>
 
-    <div style="text-align: center; font-size: 0.7rem; color: #999; margin-top: 30px; border-top: 1px solid #eee; padding-top: 15px;">
-        ※本ツールは、ハワード・ガードナーのMI理論および児童心理学の気質理論を参考に制作された「家庭向け教育支援ヒント」です。医療機関による診断に代わるものではありません。
-    </div>
-</div> 
-    
     <div class="tab-menu">
         <button class="tab-btn active" data-tab="mi">✨きらり<br>(強み)</button>
         <button class="tab-btn" data-tab="kishitsu">🌈こころ<br>(性格)</button>
@@ -128,10 +138,11 @@
         <button class="btn" style="background:var(--to-color)" onclick="window.print()">🖨️ 結果を印刷する</button>
         <button class="btn btn-save" onclick="saveImage()">📸 スマホに画像で保存</button>
     </div>
-</div>
 
-<script>
-// --- 5段階UI生成 ---
+    <div style="text-align: center; font-size: 0.7rem; color: #999; margin-top: 30px; border-top: 1px solid #eee; padding-top: 15px;">
+        ※本ツールは、ハワード・ガードナーのMI理論および児童心理学の気質理論を参考に制作された「家庭向け教育支援ヒント」です。医療機関による診断に代わるものではありません。
+    </div>
+</div> <script>
 function create5Scale(name) {
     return `
     <div class="radio-group">
@@ -143,7 +154,6 @@ function create5Scale(name) {
     </div>`;
 }
 
-// --- 質問データ (絵文字入り) ---
 const miData = [
     { c: "言語", q: "📚 難しい言葉を使ったり、おしゃべりを楽しんだりする" }, { c: "言語", q: "📖 絵本の読み聞かせや、物語を作るのが好き" },
     { c: "論理", q: "🧩 パズルや、モノを並べて分類するのが得意" }, { c: "論理", q: "🔍 「なぜ？どうして？」と仕組みを知りたがる" },
@@ -206,7 +216,7 @@ function calcMI() {
         "博物": "🌲 <strong>【あるある】</strong> 観察の天才！好きな分野の細かな違いを驚くほど見つけます。<br>💡 <strong>【ヒント】</strong> 興味のある対象（例：電車、虫）をあらゆる学びに結びつけて伴走しましょう。"
     };
 
-    document.getElementById('mi-res').innerHTML = `<h3>🌟 お子さんの「きらり」：${top}的知能</h3><p>${details[top]}</p>`;
+    document.getElementById('mi-res').innerHTML = `<h3>🌟 お子さんの「きらり」：${top}的な強み</h3><p>${details[top]}</p>`;
     document.getElementById('mi-res').style.display = 'block';
     checkReady();
 }
